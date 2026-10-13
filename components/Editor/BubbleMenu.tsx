@@ -131,3 +131,4 @@ export function EditorBubbleMenu({ editor, disabled }: EditorBubbleMenuProps) {
     </TipTapBubbleMenu>
   );
 }
+

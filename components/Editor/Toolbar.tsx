@@ -259,7 +259,10 @@ export function Toolbar({ editor, disabled, documentTitle }: ToolbarProps) {
         <button
           type="button"
           disabled={disabled || isAiLoading}
-          onClick={() => setIsAiDropdownOpen(!isAiDropdownOpen)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsAiDropdownOpen((prev) => !prev);
+          }}
           className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 hover:from-indigo-500/20 hover:to-pink-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-xs font-semibold shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed"
           title="AI Writing Assistant"
         >

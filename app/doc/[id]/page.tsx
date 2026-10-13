@@ -227,9 +227,9 @@ export default function DocumentEditorPage() {
       )}
 
       {/* Document Sub-header */}
-      <div className="sticky top-16 z-30 w-full border-b border-slate-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
+      <div className="sticky top-16 z-30 w-full border-b border-slate-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur px-3 sm:px-6 py-2 sm:py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
         {/* Left: Back button & Title input */}
-        <div className="flex items-center gap-3 min-w-0 flex-1 max-w-2xl">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 w-full sm:w-auto sm:flex-1 max-w-2xl">
           <Link
             href="/"
             className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
@@ -248,19 +248,32 @@ export default function DocumentEditorPage() {
                 onBlur={handleTitleBlur}
                 onKeyDown={handleTitleKeyDown}
                 placeholder="Untitled Document"
-                className="w-full text-base sm:text-lg font-semibold text-slate-900 dark:text-zinc-100 bg-transparent border border-transparent hover:border-slate-300 dark:hover:border-zinc-700 focus:border-indigo-500 dark:focus:border-indigo-500 rounded-md px-2 py-0.5 outline-none transition-colors truncate"
+                className="w-full text-sm sm:text-lg font-semibold text-slate-900 dark:text-zinc-100 bg-transparent border border-transparent hover:border-slate-300 dark:hover:border-zinc-700 focus:border-indigo-500 dark:focus:border-indigo-500 rounded-md px-1.5 sm:px-2 py-0.5 outline-none transition-colors truncate"
               />
             ) : (
-              <h1 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-zinc-100 px-2 py-0.5 truncate">
+              <h1 className="text-sm sm:text-lg font-semibold text-slate-900 dark:text-zinc-100 px-1.5 sm:px-2 py-0.5 truncate">
                 {title}
               </h1>
             )}
           </div>
+
+          {/* Mobile Auto-save status indicator */}
+          <div className="flex sm:hidden items-center shrink-0 text-[11px]">
+            {saveStatus === "saving" && (
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-600 dark:text-indigo-400" />
+            )}
+            {saveStatus === "saved" && (
+              <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+            )}
+            {saveStatus === "error" && (
+              <AlertTriangle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
+            )}
+          </div>
         </div>
 
-        {/* Right: Live Auto-save status, permission badge, Share button */}
-        <div className="flex items-center gap-3 shrink-0 text-xs">
-          {/* Live Auto-save status indicator */}
+        {/* Right: Live Auto-save status, permission badge, Share & Action buttons */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none w-full sm:w-auto justify-between sm:justify-end shrink-0 text-xs">
+          {/* Live Auto-save status indicator (desktop) */}
           <div className="hidden sm:flex items-center gap-1.5 font-medium">
             {saveStatus === "saving" && (
               <span className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400">
@@ -284,43 +297,45 @@ export default function DocumentEditorPage() {
 
           {/* Access / Role Badge */}
           {isOwner ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-medium bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+            <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full font-medium bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-[11px] sm:text-xs shrink-0">
               <Shield className="w-3 h-3" />
-              Owner
+              <span className="hidden xs:inline">Owner</span>
             </span>
           ) : canEdit ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-medium bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+            <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full font-medium bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[11px] sm:text-xs shrink-0">
               <Users className="w-3 h-3" />
-              Collaborator (Edit)
+              <span className="hidden xs:inline">Editor</span>
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-medium bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700">
+            <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full font-medium bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700 text-[11px] sm:text-xs shrink-0">
               <Eye className="w-3 h-3" />
-              Viewer (Read-only)
+              <span className="hidden xs:inline">Viewer</span>
             </span>
           )}
 
           {/* Export Dropdown */}
-          <ExportDropdown
-            title={title}
-            getContentHtml={() => latestContentRef.current || document.content}
-          />
+          <div className="shrink-0">
+            <ExportDropdown
+              title={title}
+              getContentHtml={() => latestContentRef.current || document.content}
+            />
+          </div>
 
           {/* Version History Button */}
           <button
             onClick={() => setIsHistoryModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-200 text-xs font-medium shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-200 text-xs font-medium shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 shrink-0"
             title="Version History"
             aria-label="Version History"
           >
             <History className="w-3.5 h-3.5 text-slate-500 dark:text-zinc-400" />
-            <span>History</span>
+            <span className="hidden sm:inline">History</span>
           </button>
 
           {/* Comments Sidebar Button */}
           <button
             onClick={() => setIsCommentsOpen(!isCommentsOpen)}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+            className={`inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg border text-xs font-medium shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 shrink-0 ${
               isCommentsOpen
                 ? "bg-indigo-50 dark:bg-indigo-950/80 border-indigo-300 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-semibold"
                 : "border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-200"
@@ -329,7 +344,7 @@ export default function DocumentEditorPage() {
             aria-label="Comments"
           >
             <MessageSquare className="w-3.5 h-3.5 text-slate-500 dark:text-zinc-400" />
-            <span>Comments</span>
+            <span className="hidden sm:inline">Comments</span>
             {commentsCount > 0 && (
               <span className="w-4 h-4 rounded-full bg-indigo-600 text-white text-[10px] flex items-center justify-center font-bold">
                 {commentsCount}
@@ -340,7 +355,7 @@ export default function DocumentEditorPage() {
           {/* Keyboard Shortcuts Trigger Button */}
           <button
             onClick={() => setIsShortcutsOpen(true)}
-            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-200 text-xs font-medium shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-200 text-xs font-medium shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 shrink-0"
             title="Keyboard Shortcuts (Ctrl+K)"
             aria-label="Shortcuts"
           >
@@ -352,7 +367,7 @@ export default function DocumentEditorPage() {
           {isOwner && (
             <button
               onClick={() => setIsShareModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 shrink-0 text-xs"
             >
               <Share2 className="w-3.5 h-3.5" />
               <span>Share</span>

@@ -34,7 +34,7 @@ export function TipTapEditor({
     editorProps: {
       attributes: {
         class:
-          "prose prose-slate dark:prose-invert max-w-none focus:outline-none min-h-[750px] px-8 sm:px-14 py-12 text-slate-900 dark:text-zinc-100 leading-relaxed font-sans",
+          "prose prose-slate dark:prose-invert max-w-none focus:outline-none min-h-[750px] px-4 sm:px-14 py-6 sm:py-12 text-slate-900 dark:text-zinc-100 leading-relaxed font-sans",
       },
     },
     onUpdate: ({ editor }) => {
@@ -67,7 +67,7 @@ export function TipTapEditor({
       </div>
 
       {/* Centered Google Docs-style Paper Sheet */}
-      <main className="w-full max-w-4xl px-4 sm:px-6 py-8 flex justify-center">
+      <main className="w-full max-w-4xl px-2 sm:px-6 py-4 sm:py-8 flex justify-center">
         <div className="w-full bg-white dark:bg-zinc-900 shadow-md dark:shadow-2xl border border-slate-200 dark:border-zinc-800 rounded-sm sm:rounded-md transition-colors min-h-[850px]">
           <EditorContent editor={editor} />
         </div>

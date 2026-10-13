@@ -44,9 +44,7 @@ export function DocumentCard({ document, isOwned, onDelete }: DocumentCardProps)
   const handleDelete = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (confirm(`Are you sure you want to delete "${document.title}"?`)) {
-      onDelete?.(document.id);
-    }
+    onDelete?.(document.id);
   };
 
   const shareCount = document.shares?.length ?? 0;
