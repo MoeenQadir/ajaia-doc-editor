@@ -1,0 +1,63 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String     @id
+  name      String
+  email     String     @unique
+  ownedDocs Document[] @relation("UserOwnedDocuments")
+  shares    DocShare[] @relation("UserDocShares")
+  comments  Comment[]  @relation("UserComments")
+  createdAt DateTime   @default(now())
+}
+
+model Document {
+  id        String       @id @default(uuid())
+  title     String       @default("Untitled Document")
+  content   String       @default("")
+  ownerId   String
+  owner     User         @relation("UserOwnedDocuments", fields: [ownerId], references: [id], onDelete: Cascade)
+  shares    DocShare[]   @relation("DocumentShares")
+  versions  DocVersion[]
+  comments  Comment[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model DocShare {
+  id         String   @id @default(uuid())
+  documentId String
+  document   Document @relation("DocumentShares", fields: [documentId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation("UserDocShares", fields: [userId], references: [id], onDelete: Cascade)
+  permission String   @default("edit")
+  createdAt  DateTime @default(now())
+
+  @@unique([documentId, userId])
+}
+
+model DocVersion {
+  id         String   @id @default(uuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  content    String
+  title      String
+  savedAt    DateTime @default(now())
+}
+
+model Comment {
+  id         String   @id @default(uuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     User     @relation("UserComments", fields: [authorId], references: [id], onDelete: Cascade)
+  text       String
+  resolved   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
