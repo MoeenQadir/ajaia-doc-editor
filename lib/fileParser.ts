@@ -171,6 +171,22 @@ export async function parseDocxToHtml(buffer: Buffer): Promise<string> {
 }
 
 /**
+ * Sanitizes HTML by stripping dangerous tags and inline event handlers to prevent XSS.
+ */
+export function sanitizeHtml(html: string): string {
+  if (!html) return "<p></p>";
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, "")
+    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, "")
+    .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, "")
+    .replace(/\son\w+="[^"]*"/gi, "")
+    .replace(/\son\w+='[^']*'/gi, "")
+    .replace(/\son\w+=[^\s>]+/gi, "")
+    .replace(/javascript:[^"']*/gi, "");
+}
+
+/**
  * Main parser entrypoint based on file extension.
  */
 export async function parseFileToHtml(
@@ -198,7 +214,7 @@ export async function parseFileToHtml(
 
   return {
     title: baseTitle,
-    html,
+    html: sanitizeHtml(html),
   };
 }
 

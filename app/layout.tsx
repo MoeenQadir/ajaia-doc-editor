@@ -13,6 +13,8 @@ export const metadata: Metadata = {
     "High-quality collaborative document editor prototype inspired by Google Docs for Ajaia.",
 };
 
+import { ToastProvider } from "@/components/ui/Toast";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,12 +30,14 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ActiveUserProvider>
-            <div className="min-h-screen flex flex-col">
-              <Navbar />
-              <div className="flex-1">
-                {children}
+            <ToastProvider>
+              <div className="min-h-screen flex flex-col">
+                <Navbar />
+                <div className="flex-1">
+                  {children}
+                </div>
               </div>
-            </div>
+            </ToastProvider>
           </ActiveUserProvider>
         </ThemeProvider>
       </body>

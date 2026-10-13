@@ -21,6 +21,8 @@ import {
   ListTree,
 } from "lucide-react";
 
+import { useToast } from "@/components/ui/Toast";
+
 export interface ToolbarProps {
   editor: Editor | null;
   disabled?: boolean;
@@ -28,6 +30,7 @@ export interface ToolbarProps {
 }
 
 export function Toolbar({ editor, disabled, documentTitle }: ToolbarProps) {
+  const { toast } = useToast();
   const [isAiDropdownOpen, setIsAiDropdownOpen] = useState(false);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiActionActive, setAiActionActive] = useState<string | null>(null);
@@ -50,7 +53,7 @@ export function Toolbar({ editor, disabled, documentTitle }: ToolbarProps) {
   if (!editor || disabled) return null;
 
   const buttonBase =
-    "p-2 rounded-lg text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
+    "p-2 rounded-lg text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0";
   const activeStyle =
     "bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 font-semibold";
 
@@ -97,9 +100,10 @@ export function Toolbar({ editor, disabled, documentTitle }: ToolbarProps) {
         // Append or insert at cursor
         editor.chain().focus().insertContent(generatedHtml).run();
       }
-    } catch (err) {
+      toast.success(`AI ${action} completed!`);
+    } catch (err: any) {
       console.error("AI Assistant error:", err);
-      alert("Failed to generate AI response. Please check connection.");
+      toast.error(err.message || "Failed to generate AI response. Please check connection.");
     } finally {
       setIsAiLoading(false);
       setAiActionActive(null);
@@ -107,8 +111,8 @@ export function Toolbar({ editor, disabled, documentTitle }: ToolbarProps) {
   };
 
   return (
-    <div className="sticky top-16 z-30 flex flex-wrap items-center justify-between gap-1 p-2 bg-white/95 dark:bg-zinc-900/95 backdrop-blur border-b border-slate-200 dark:border-zinc-800 transition-colors">
-      <div className="flex flex-wrap items-center gap-1">
+    <div className="sticky top-[116px] z-20 flex items-center justify-between gap-1 p-2 bg-white/95 dark:bg-zinc-900/95 backdrop-blur border-b border-slate-200 dark:border-zinc-800 transition-colors overflow-x-auto">
+      <div className="flex items-center gap-1 shrink-0">
         {/* Paragraph / Normal text */}
         <button
           type="button"

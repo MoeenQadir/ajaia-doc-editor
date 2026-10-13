@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Users, Shield, Check, UserPlus, AlertCircle } from "lucide-react";
+import { X, Users, Shield, Check, UserPlus, AlertCircle, Copy } from "lucide-react";
 import { useActiveUser } from "@/lib/user-context";
 import { MOCK_USERS } from "@/lib/permissions";
+import { useToast } from "@/components/ui/Toast";
 
 export interface ShareModalProps {
   isOpen: boolean;
@@ -37,6 +38,8 @@ export function ShareModal({
   onShareSuccess,
 }: ShareModalProps) {
   const { fetchWithUser } = useActiveUser();
+  const { toast } = useToast();
+  const [copiedLink, setCopiedLink] = useState(false);
 
   // Pick default user not equal to owner
   const availableUsers = MOCK_USERS.filter(
@@ -52,6 +55,15 @@ export function ShareModal({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   if (!isOpen) return null;
+
+  const handleCopyLink = () => {
+    if (typeof window !== "undefined") {
+      navigator.clipboard.writeText(window.location.href);
+      setCopiedLink(true);
+      toast.success("Document link copied to clipboard!");
+      setTimeout(() => setCopiedLink(false), 2000);
+    }
+  };
 
   const handleShare = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,9 +91,11 @@ export function ShareModal({
 
       const targetUserName =
         MOCK_USERS.find((u) => u.id === selectedUserId)?.name || "user";
+      toast.success(`Shared with ${targetUserName} as ${permission === "edit" ? "Editor" : "Viewer"}`);
       setSuccessMessage(`Successfully shared with ${targetUserName}!`);
       onShareSuccess?.();
     } catch (err: any) {
+      toast.error(err.message || "Failed to share document");
       setErrorMessage(err.message || "An error occurred");
     } finally {
       setLoading(false);
@@ -101,17 +115,36 @@ export function ShareModal({
               <h3 className="font-semibold text-lg text-slate-900 dark:text-zinc-100">
                 Share Document
               </h3>
-              <p className="text-xs text-slate-500 dark:text-zinc-400 truncate max-w-[240px]">
+              <p className="text-xs text-slate-500 dark:text-zinc-400 truncate max-w-[200px]">
                 {document.title}
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleCopyLink}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800/80 hover:bg-slate-100 dark:hover:bg-zinc-800 text-xs text-slate-700 dark:text-zinc-300 font-medium transition-colors"
+              title="Copy Document Link"
+            >
+              {copiedLink ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-500" />
+                  <span className="text-emerald-600 dark:text-emerald-400">Copied</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5 text-slate-500 dark:text-zinc-400" />
+                  <span>Copy Link</span>
+                </>
+              )}
+            </button>
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Status Alerts */}

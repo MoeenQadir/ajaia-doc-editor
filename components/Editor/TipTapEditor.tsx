@@ -5,6 +5,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import { Toolbar } from "./Toolbar";
+import { EditorBubbleMenu } from "./BubbleMenu";
 
 export interface TipTapEditorProps {
   initialContent: string;
@@ -57,6 +58,9 @@ export function TipTapEditor({
 
   return (
     <div className="w-full flex flex-col items-center">
+      {/* Floating Selection Bubble Menu */}
+      <EditorBubbleMenu editor={editor} disabled={!editable} />
+
       {/* Formatting Toolbar */}
       <div className="w-full">
         <Toolbar editor={editor} disabled={!editable} documentTitle={documentTitle} />

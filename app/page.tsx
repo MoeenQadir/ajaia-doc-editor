@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useToast } from "@/components/ui/Toast";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import {
   FileText,
   Users,
@@ -11,15 +13,59 @@ import {
   FolderOpen,
   Sparkles,
   Loader2,
+  Calendar,
+  Layers,
+  FileCode,
 } from "lucide-react";
 import { DocumentCard } from "@/components/DocumentCard";
 import { useActiveUser } from "@/lib/user-context";
 import { ImportModal } from "@/components/ImportModal";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+
+const TEMPLATES = [
+  {
+    id: "blank",
+    title: "Blank Document",
+    desc: "Start with a clean sheet",
+    icon: Plus,
+    color: "from-indigo-500/10 to-violet-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800",
+    initialContent: "<p></p>",
+    defaultTitle: "Untitled Document",
+  },
+  {
+    id: "prd",
+    title: "Product PRD",
+    desc: "Overview, Personas & User Stories",
+    icon: Layers,
+    color: "from-blue-500/10 to-cyan-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800",
+    defaultTitle: "Product Requirement Document (PRD)",
+    initialContent: `<h1>Product Requirement Document (PRD)</h1><p><strong>Status:</strong> Draft &middot; <strong>Author:</strong> Team Lead &middot; <strong>Target Release:</strong> Q3</p><h2>1. Executive Summary & Objective</h2><p>Briefly describe the product vision, core customer problem, and business value.</p><h2>2. Target Audience & User Personas</h2><ul><li><strong>Primary User:</strong> Power users looking for fast collaborative note taking.</li><li><strong>Secondary User:</strong> Team managers reviewing specifications.</li></ul><h2>3. User Stories & Functional Requirements</h2><ul><li>As a user, I want instant auto-saving so that no edits are lost.</li><li>As a team member, I want to comment on sections directly.</li></ul><h2>4. Technical Architecture & Constraints</h2><p>Overview of system boundaries, database schemas, and API design.</p>`,
+  },
+  {
+    id: "meeting",
+    title: "Meeting Notes",
+    desc: "Attendees, Agenda & Action Items",
+    icon: Calendar,
+    color: "from-amber-500/10 to-orange-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800",
+    defaultTitle: "Weekly Engineering Sync",
+    initialContent: `<h1>Weekly Engineering Sync</h1><p><strong>Date:</strong> Today &middot; <strong>Attendees:</strong> Alice, Bob, Engineering Team</p><h2>Agenda</h2><ul><li>Sprint velocity and progress review</li><li>Blockers & architecture discussions</li><li>Upcoming milestone deliverables</li></ul><h2>Key Discussion Points</h2><p>Document decisions, architectural tradeoffs, and feedback here.</p><h2>Action Items</h2><ul><li>[ ] Finalize API specifications for v1 launch</li><li>[ ] Complete automated integration testing suite</li><li>[ ] Deploy staging environment for feedback</li></ul>`,
+  },
+  {
+    id: "architecture",
+    title: "Architecture Spec",
+    desc: "Topology, Schemas & API Endpoints",
+    icon: FileCode,
+    color: "from-emerald-500/10 to-teal-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
+    defaultTitle: "System Architecture Specification",
+    initialContent: `<h1>System Architecture Specification</h1><p><strong>System:</strong> Ajaia Docs Engine &middot; <strong>Version:</strong> 2.0-Alpha</p><h2>1. High-Level Architecture Overview</h2><p>Describes client-server topology, data persistence, and edge caching.</p><h2>2. Data Models & Entity Relationships</h2><ul><li><strong>User:</strong> Multi-tenant identity model.</li><li><strong>Document:</strong> Document body with revision tracking.</li><li><strong>DocShare:</strong> Role-based access control (View/Edit).</li></ul><h2>3. API Endpoints & Interfaces</h2><ul><li><code>GET /api/documents</code> - Fetch documents</li><li><code>POST /api/documents</code> - Create new record</li><li><code>PATCH /api/documents/:id</code> - Auto-save debounced snapshot</li></ul><h2>4. Non-Functional Requirements & Security</h2><p>Outlines SLA, latency targets, and role permissions.</p>`,
+  },
+];
 
 export default function DashboardPage() {
   const router = useRouter();
   const { currentUser, fetchWithUser } = useActiveUser();
+  const { toast } = useToast();
 
   const [ownedDocs, setOwnedDocs] = useState<any[]>([]);
   const [sharedDocs, setSharedDocs] = useState<any[]>([]);
@@ -27,6 +73,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [docToDelete, setDocToDelete] = useState<{ id: string; title: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchDocuments = useCallback(async () => {
     try {
@@ -38,48 +86,58 @@ export default function DashboardPage() {
       setSharedDocs(data.shared || []);
     } catch (err) {
       console.error("Dashboard fetch error:", err);
+      toast.error("Could not fetch documents. Check database connection.");
     } finally {
       setLoading(false);
     }
-  }, [fetchWithUser]);
+  }, [fetchWithUser, toast]);
 
   useEffect(() => {
     fetchDocuments();
   }, [fetchDocuments, currentUser.id]);
 
-  const handleDelete = async (id: string) => {
+  const confirmDeleteAction = async () => {
+    if (!docToDelete) return;
     try {
-      const res = await fetchWithUser(`/api/documents/${id}`, {
+      setIsDeleting(true);
+      const res = await fetchWithUser(`/api/documents/${docToDelete.id}`, {
         method: "DELETE",
       });
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.error || "Failed to delete document");
       }
-      // Optimistic update
-      setOwnedDocs((prev) => prev.filter((d) => d.id !== id));
+      setOwnedDocs((prev) => prev.filter((d) => d.id !== docToDelete.id));
+      toast.success(`"${docToDelete.title}" was deleted.`);
+      setDocToDelete(null);
     } catch (err: any) {
-      alert(err.message || "Could not delete document");
+      toast.error(err.message || "Could not delete document");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
-  const handleCreateNew = async () => {
+  const handleCreateNew = async (templateTitle?: string, initialContent?: string) => {
     try {
       setIsCreating(true);
       const res = await fetchWithUser("/api/documents", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title: "Untitled Document",
-          content: "<p></p>",
+          title: templateTitle || "Untitled Document",
+          content: initialContent || "<p></p>",
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to create document");
+      if (!res.ok) {
+        const errJson = await res.json();
+        throw new Error(errJson.error || "Failed to create document");
+      }
       const newDoc = await res.json();
+      toast.success("New document created!");
       router.push(`/doc/${newDoc.id}`);
-    } catch (err) {
-      alert("Error creating new document");
+    } catch (err: any) {
+      toast.error(err.message || "Error creating new document");
     } finally {
       setIsCreating(false);
     }
@@ -114,7 +172,7 @@ export default function DashboardPage() {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={handleCreateNew}
+            onClick={() => handleCreateNew()}
             disabled={isCreating}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
           >
@@ -132,6 +190,42 @@ export default function DashboardPage() {
             <Upload className="w-4 h-4 text-slate-500 dark:text-zinc-400" />
             Import (.docx, .md, .txt)
           </button>
+        </div>
+      </div>
+
+      {/* Quick Starter Templates Gallery */}
+      <div className="mb-10">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
+            Start a New Document
+          </h2>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+          {TEMPLATES.map((tmpl) => {
+            const Icon = tmpl.icon;
+            return (
+              <motion.button
+                key={tmpl.id}
+                whileHover={{ y: -3, transition: { duration: 0.15 } }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleCreateNew(tmpl.defaultTitle, tmpl.initialContent)}
+                disabled={isCreating}
+                className="flex flex-col text-left p-4 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 group relative overflow-hidden"
+              >
+                <div
+                  className={`w-10 h-10 rounded-xl bg-gradient-to-br ${tmpl.color} border flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}
+                >
+                  <Icon className="w-5 h-5" />
+                </div>
+                <h3 className="font-semibold text-xs sm:text-sm text-slate-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                  {tmpl.title}
+                </h3>
+                <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-0.5 line-clamp-1">
+                  {tmpl.desc}
+                </p>
+              </motion.button>
+            );
+          })}
         </div>
       </div>
 
@@ -191,7 +285,7 @@ export default function DashboardPage() {
                     key={doc.id}
                     document={doc}
                     isOwned={true}
-                    onDelete={handleDelete}
+                    onDelete={(id) => setDocToDelete({ id, title: doc.title })}
                   />
                 ))}
               </div>
@@ -204,7 +298,7 @@ export default function DashboardPage() {
                     : "No owned documents yet."}
                 </p>
                 <p className="text-xs text-slate-400 dark:text-zinc-500 mt-1">
-                  Click &quot;New Document&quot; above to create your first document.
+                  Click a template above to start your first document.
                 </p>
               </div>
             )}
@@ -252,6 +346,19 @@ export default function DashboardPage() {
           </section>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!docToDelete}
+        title="Delete Document"
+        description={`Are you sure you want to permanently delete "${docToDelete?.title || "this document"}"? This action cannot be undone.`}
+        confirmText="Yes, Delete Document"
+        cancelText="Keep Document"
+        variant="danger"
+        isLoading={isDeleting}
+        onConfirm={confirmDeleteAction}
+        onClose={() => setDocToDelete(null)}
+      />
 
       {/* Import Modal */}
       <ImportModal

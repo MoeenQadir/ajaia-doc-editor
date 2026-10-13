@@ -15,6 +15,10 @@ import {
 import { useActiveUser } from "@/lib/user-context";
 import { formatDate } from "@/lib/utils";
 
+import { useToast } from "@/components/ui/Toast";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { AnimatePresence, motion } from "framer-motion";
+
 export interface CommentsSidebarProps {
   isOpen: boolean;
   onClose: () => void;
@@ -45,12 +49,15 @@ export function CommentsSidebar({
   onCommentsCountChange,
 }: CommentsSidebarProps) {
   const { currentUser, fetchWithUser } = useActiveUser();
+  const { toast } = useToast();
 
   const [comments, setComments] = useState<CommentItem[]>([]);
   const [newText, setNewText] = useState("");
   const [loading, setLoading] = useState(true);
   const [posting, setPosting] = useState(false);
   const [filter, setFilter] = useState<"all" | "open" | "resolved">("open");
+  const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
+  const [isDeletingComment, setIsDeletingComment] = useState(false);
 
   const fetchComments = async () => {
     try {
@@ -92,9 +99,10 @@ export function CommentsSidebar({
       const updated = [...comments, data.comment];
       setComments(updated);
       setNewText("");
+      toast.success("Comment added");
       onCommentsCountChange?.(updated.filter((c) => !c.resolved).length);
     } catch (err: any) {
-      alert(err.message || "Could not post comment");
+      toast.error(err.message || "Could not post comment");
     } finally {
       setPosting(false);
     }
@@ -118,18 +126,20 @@ export function CommentsSidebar({
         c.id === commentId ? data.comment : c
       );
       setComments(updated);
+      toast.info(!currentResolved ? "Comment marked as resolved" : "Comment reopened");
       onCommentsCountChange?.(updated.filter((c) => !c.resolved).length);
     } catch (err: any) {
-      alert(err.message || "Failed to update comment");
+      toast.error(err.message || "Failed to update comment");
     }
   };
 
-  const handleDeleteComment = async (commentId: string) => {
-    if (!confirm("Are you sure you want to delete this comment?")) return;
+  const confirmDeleteComment = async () => {
+    if (!commentToDelete) return;
 
     try {
+      setIsDeletingComment(true);
       const res = await fetchWithUser(
-        `/api/documents/${documentId}/comments/${commentId}`,
+        `/api/documents/${documentId}/comments/${commentToDelete}`,
         {
           method: "DELETE",
         }
@@ -137,11 +147,15 @@ export function CommentsSidebar({
 
       if (!res.ok) throw new Error("Failed to delete comment");
 
-      const updated = comments.filter((c) => c.id !== commentId);
+      const updated = comments.filter((c) => c.id !== commentToDelete);
       setComments(updated);
+      toast.success("Comment deleted");
       onCommentsCountChange?.(updated.filter((c) => !c.resolved).length);
+      setCommentToDelete(null);
     } catch (err: any) {
-      alert(err.message || "Failed to delete comment");
+      toast.error(err.message || "Failed to delete comment");
+    } finally {
+      setIsDeletingComment(false);
     }
   };
 
@@ -152,7 +166,23 @@ export function CommentsSidebar({
   });
 
   return (
-    <aside className="fixed inset-y-0 right-0 z-40 w-full sm:w-96 bg-white dark:bg-zinc-900 border-l border-slate-200 dark:border-zinc-800 shadow-2xl flex flex-col pt-16 animate-in slide-in-from-right duration-200">
+    <>
+      {/* Mobile backdrop */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="fixed inset-0 bg-black/40 backdrop-blur-xs z-30 sm:hidden"
+      />
+
+      <motion.aside
+        initial={{ x: "100%" }}
+        animate={{ x: 0 }}
+        exit={{ x: "100%" }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className="fixed inset-y-0 right-0 z-40 w-full sm:w-96 bg-white dark:bg-zinc-900 border-l border-slate-200 dark:border-zinc-800 shadow-2xl flex flex-col pt-16"
+      >
       {/* Header */}
       <div className="p-4 border-b border-slate-200 dark:border-zinc-800 flex items-center justify-between bg-white/95 dark:bg-zinc-900/95 shrink-0">
         <div className="flex items-center gap-2">
@@ -272,7 +302,7 @@ export function CommentsSidebar({
 
                   {canDelete && (
                     <button
-                      onClick={() => handleDeleteComment(comment.id)}
+                      onClick={() => setCommentToDelete(comment.id)}
                       className="p-1 rounded text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
                       title="Delete comment"
                     >
@@ -328,7 +358,21 @@ export function CommentsSidebar({
           </button>
         </div>
       </form>
-    </aside>
+    </motion.aside>
+
+    {/* Confirm Delete Comment Modal */}
+    <ConfirmModal
+      isOpen={!!commentToDelete}
+      title="Delete Comment"
+      description="Are you sure you want to delete this comment? This action cannot be undone."
+      confirmText="Yes, Delete Comment"
+      cancelText="Cancel"
+      variant="danger"
+      isLoading={isDeletingComment}
+      onConfirm={confirmDeleteComment}
+      onClose={() => setCommentToDelete(null)}
+    />
+  </>
   );
 }
 

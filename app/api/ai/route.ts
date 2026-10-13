@@ -58,11 +58,11 @@ export async function POST(req: Request) {
             headers: {
               Authorization: `Bearer ${apiKey}`,
               "Content-Type": "application/json",
-              "HTTP-Referer": "https://ajaia.io",
+              "HTTP-Referer": "https://ajaia-doc.vercel.app",
               "X-Title": "Ajaia Docs",
             },
             body: JSON.stringify({
-              model: "openai/gpt-4o-mini",
+              model: "meta-llama/llama-3.3-70b-instruct:free",
               messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userPrompt },

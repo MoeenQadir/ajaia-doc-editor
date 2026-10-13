@@ -32,6 +32,9 @@ interface VersionItem {
   savedAt: string;
 }
 
+import { useToast } from "@/components/ui/Toast";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
+
 export function VersionHistoryModal({
   isOpen,
   onClose,
@@ -41,6 +44,7 @@ export function VersionHistoryModal({
   onVersionRestored,
 }: VersionHistoryModalProps) {
   const { fetchWithUser } = useActiveUser();
+  const { toast } = useToast();
 
   const [versions, setVersions] = useState<VersionItem[]>([]);
   const [selectedVersion, setSelectedVersion] = useState<VersionItem | null>(null);
@@ -49,6 +53,7 @@ export function VersionHistoryModal({
   const [creatingSnapshot, setCreatingSnapshot] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [versionToRestore, setVersionToRestore] = useState<VersionItem | null>(null);
 
   const fetchVersions = async () => {
     try {
@@ -85,32 +90,25 @@ export function VersionHistoryModal({
       });
       if (!res.ok) throw new Error("Failed to create checkpoint");
       await fetchVersions();
+      toast.success("Snapshot checkpoint created!");
       setStatusMessage("Snapshot checkpoint created!");
       setTimeout(() => setStatusMessage(null), 3000);
     } catch (err: any) {
+      toast.error(err.message || "Failed to create checkpoint");
       setErrorMessage(err.message || "Failed to create checkpoint");
     } finally {
       setCreatingSnapshot(false);
     }
   };
 
-  const handleRestoreVersion = async (version: VersionItem) => {
-    if (!canEdit) return;
-    if (
-      !confirm(
-        `Are you sure you want to restore the version from ${formatDate(
-          version.savedAt
-        )}? Active content will be overwritten.`
-      )
-    ) {
-      return;
-    }
+  const confirmRestoreAction = async () => {
+    if (!versionToRestore || !canEdit) return;
 
     try {
       setRestoring(true);
       setErrorMessage(null);
       const res = await fetchWithUser(
-        `/api/documents/${documentId}/versions/${version.id}/restore`,
+        `/api/documents/${documentId}/versions/${versionToRestore.id}/restore`,
         {
           method: "POST",
         }
@@ -119,12 +117,15 @@ export function VersionHistoryModal({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to restore version");
 
+      toast.success("Version restored successfully!");
       setStatusMessage("Version restored successfully!");
       onVersionRestored(data.document);
+      setVersionToRestore(null);
       setTimeout(() => {
         onClose();
       }, 800);
     } catch (err: any) {
+      toast.error(err.message || "Could not restore version");
       setErrorMessage(err.message || "Could not restore version");
     } finally {
       setRestoring(false);
@@ -262,7 +263,7 @@ export function VersionHistoryModal({
 
                   {canEdit && (
                     <button
-                      onClick={() => handleRestoreVersion(selectedVersion)}
+                      onClick={() => setVersionToRestore(selectedVersion)}
                       disabled={restoring}
                       className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium shadow-sm transition-colors disabled:opacity-50"
                     >
@@ -296,6 +297,21 @@ export function VersionHistoryModal({
           </div>
         </div>
       </div>
+
+      {/* Confirm Restore Modal */}
+      <ConfirmModal
+        isOpen={!!versionToRestore}
+        title="Restore Document Version"
+        description={`Are you sure you want to restore the version from ${
+          versionToRestore ? formatDate(versionToRestore.savedAt) : ""
+        }? Active document content will be overwritten.`}
+        confirmText="Yes, Restore Version"
+        cancelText="Cancel"
+        variant="warning"
+        isLoading={restoring}
+        onConfirm={confirmRestoreAction}
+        onClose={() => setVersionToRestore(null)}
+      />
     </div>
   );
 }

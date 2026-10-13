@@ -20,8 +20,12 @@ import { ShareModal } from "@/components/ShareModal";
 import { ExportDropdown } from "@/components/ExportDropdown";
 import { VersionHistoryModal } from "@/components/VersionHistoryModal";
 import { CommentsSidebar } from "@/components/CommentsSidebar";
+import { EditorFooter } from "@/components/Editor/EditorFooter";
+import { KeyboardShortcutsModal } from "@/components/KeyboardShortcutsModal";
 import { useActiveUser } from "@/lib/user-context";
 import { formatDate } from "@/lib/utils";
+import { useToast } from "@/components/ui/Toast";
+import { Keyboard } from "lucide-react";
 
 type SaveStatus = "saved" | "saving" | "error";
 
@@ -29,6 +33,7 @@ export default function DocumentEditorPage() {
   const params = useParams();
   const router = useRouter();
   const { fetchWithUser } = useActiveUser();
+  const { toast } = useToast();
 
   const docId = params.id as string;
 
@@ -48,6 +53,7 @@ export default function DocumentEditorPage() {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const [commentsCount, setCommentsCount] = useState(0);
 
   // References for debounce timer and latest content
@@ -139,14 +145,39 @@ export default function DocumentEditorPage() {
     }
   };
 
-  // Clean up timer on unmount
+  // Clean up timer on unmount & register global shortcuts
   useEffect(() => {
+    const handleGlobalShortcuts = (e: KeyboardEvent) => {
+      const isCmdOrCtrl = e.ctrlKey || e.metaKey;
+
+      if (isCmdOrCtrl && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        saveDocumentChanges({
+          content: latestContentRef.current,
+          title,
+        });
+        toast.success("Document saved to DB!");
+      } else if (isCmdOrCtrl && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setIsShortcutsOpen((prev) => !prev);
+      } else if (isCmdOrCtrl && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        setIsCommentsOpen((prev) => !prev);
+      } else if (isCmdOrCtrl && e.shiftKey && e.key.toLowerCase() === "h") {
+        e.preventDefault();
+        setIsHistoryModalOpen((prev) => !prev);
+      }
+    };
+
+    window.addEventListener("keydown", handleGlobalShortcuts);
+
     return () => {
+      window.removeEventListener("keydown", handleGlobalShortcuts);
       if (autoSaveTimerRef.current) {
         clearTimeout(autoSaveTimerRef.current);
       }
     };
-  }, []);
+  }, [title]);
 
   if (loading) {
     return (
@@ -306,6 +337,17 @@ export default function DocumentEditorPage() {
             )}
           </button>
 
+          {/* Keyboard Shortcuts Trigger Button */}
+          <button
+            onClick={() => setIsShortcutsOpen(true)}
+            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-200 text-xs font-medium shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            title="Keyboard Shortcuts (Ctrl+K)"
+            aria-label="Shortcuts"
+          >
+            <Keyboard className="w-3.5 h-3.5 text-slate-500 dark:text-zinc-400" />
+            <span className="hidden lg:inline">Shortcuts</span>
+          </button>
+
           {/* Share Button (Available to owner) */}
           {isOwner && (
             <button
@@ -320,11 +362,21 @@ export default function DocumentEditorPage() {
       </div>
 
       {/* Editor Canvas */}
-      <TipTapEditor
-        initialContent={document.content}
-        editable={canEdit}
-        documentTitle={title}
-        onChange={handleContentChange}
+      <div className="flex-1 flex flex-col">
+        <TipTapEditor
+          initialContent={document.content}
+          editable={canEdit}
+          documentTitle={title}
+          onChange={handleContentChange}
+        />
+      </div>
+
+      {/* Google Docs Style Footer & Word Count Status Bar */}
+      <EditorFooter
+        content={latestContentRef.current || document.content || ""}
+        saveStatus={saveStatus}
+        lastSavedAt={lastSavedAt}
+        onOpenShortcuts={() => setIsShortcutsOpen(true)}
       />
 
       {/* Share Modal */}
@@ -359,6 +411,12 @@ export default function DocumentEditorPage() {
         documentId={docId}
         documentOwnerId={document.ownerId}
         onCommentsCountChange={(count) => setCommentsCount(count)}
+      />
+
+      {/* Keyboard Shortcuts Modal */}
+      <KeyboardShortcutsModal
+        isOpen={isShortcutsOpen}
+        onClose={() => setIsShortcutsOpen(false)}
       />
     </div>
   );
