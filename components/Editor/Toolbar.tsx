@@ -370,30 +370,30 @@ export function Toolbar({ editor, disabled, documentTitle }: ToolbarProps) {
 
       {/* Dedicated Professional AI Output Playground */}
       {isAiResultOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="relative w-full max-w-lg rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl p-6 text-slate-900 dark:text-zinc-100 flex flex-col max-h-[85vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center sm:items-start sm:justify-end sm:p-6 p-4 bg-black/40 sm:bg-transparent backdrop-blur-xs sm:backdrop-blur-none pointer-events-none animate-in fade-in duration-150">
+          <div className="relative w-full max-w-md sm:w-[420px] rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl p-5 text-slate-900 dark:text-zinc-100 flex flex-col max-h-[85vh] sm:max-h-[75vh] sm:mt-24 pointer-events-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-zinc-800 shrink-0">
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 dark:border-zinc-800 shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500/20 via-purple-500/20 to-pink-500/20 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-                  <Bot className="w-5 h-5" />
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500/20 via-purple-500/20 to-pink-500/20 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                  <Bot className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-base text-slate-900 dark:text-zinc-100 flex items-center gap-2">
-                    AI Assistant Response
-                    <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                  <h3 className="font-bold text-sm text-slate-900 dark:text-zinc-100 flex items-center gap-2">
+                    AI Assistant Output
+                    <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
                       {aiResultAction || "Generated"}
                     </span>
                   </h3>
-                  <p className="text-xs text-slate-400 dark:text-zinc-500">
-                    Review generated output before copying or inserting
+                  <p className="text-[11px] text-slate-400 dark:text-zinc-500">
+                    Review output without altering document text
                   </p>
                 </div>
               </div>
 
               <button
                 onClick={handleClearAiResult}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
                 title="Close"
               >
                 <X className="w-4 h-4" />
@@ -401,24 +401,21 @@ export function Toolbar({ editor, disabled, documentTitle }: ToolbarProps) {
             </div>
 
             {/* Response Content Output Area */}
-            <div className="my-4 flex-1 overflow-y-auto">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-1.5 block">
-                Output Preview
-              </label>
+            <div className="my-3 flex-1 overflow-y-auto">
               <div
-                className="w-full p-4 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950/50 text-slate-800 dark:text-zinc-200 text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none select-text overflow-x-auto min-h-[140px]"
+                className="w-full p-3.5 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950/60 text-slate-800 dark:text-zinc-200 text-xs sm:text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none select-text overflow-x-auto min-h-[120px]"
                 dangerouslySetInnerHTML={{ __html: aiResult }}
               />
             </div>
 
             {/* Action Bar */}
-            <div className="pt-3 border-t border-slate-100 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-2.5 shrink-0">
+            <div className="pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between gap-2 shrink-0 text-xs">
               <button
                 type="button"
                 onClick={handleClearAiResult}
-                className="px-3.5 py-2 text-xs font-medium rounded-xl text-slate-600 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                className="px-3 py-1.5 font-medium rounded-lg text-slate-500 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
               >
-                Clear / Discard
+                Clear
               </button>
 
               <div className="flex items-center gap-2">
@@ -426,7 +423,7 @@ export function Toolbar({ editor, disabled, documentTitle }: ToolbarProps) {
                 <button
                   type="button"
                   onClick={handleCopyAiResult}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-700/80 shadow-xs transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 font-semibold rounded-lg border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-700/80 shadow-xs transition-colors"
                 >
                   {isCopied ? (
                     <>
@@ -436,7 +433,7 @@ export function Toolbar({ editor, disabled, documentTitle }: ToolbarProps) {
                   ) : (
                     <>
                       <Copy className="w-3.5 h-3.5 text-slate-500 dark:text-zinc-400" />
-                      <span>Copy Output</span>
+                      <span>Copy</span>
                     </>
                   )}
                 </button>
@@ -445,10 +442,10 @@ export function Toolbar({ editor, disabled, documentTitle }: ToolbarProps) {
                 <button
                   type="button"
                   onClick={handleInsertIntoDoc}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                   <CornerDownLeft className="w-3.5 h-3.5" />
-                  <span>Insert to Document</span>
+                  <span>Insert to Doc</span>
                 </button>
               </div>
             </div>
