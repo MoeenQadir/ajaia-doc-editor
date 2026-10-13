@@ -84,3 +84,4 @@ Ajaia Docs is architected using a modern, unified Next.js 14 full-stack structur
 ## 5. Security & Verification Strategy
 - **Role-Based Enforcement:** All document write routes verify whether the user has `owner` or `edit` permissions; viewers receive HTTP 403 Forbidden.
 - **Automated Vitest Suite:** Tests both the authorization matrix (`tests/sharing.test.ts`) and file parsing/sanitization pipelines (`tests/fileParser.test.ts`).
+

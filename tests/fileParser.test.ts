@@ -37,3 +37,4 @@ Some **bold** and *italic* text.`;
     expect(cleaned).not.toContain("onerror");
   });
 });
+

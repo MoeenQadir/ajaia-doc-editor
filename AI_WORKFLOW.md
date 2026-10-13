@@ -37,3 +37,4 @@ During this build, I incorporated a modern AI-assisted engineering workflow:
 2. **Deterministic Fallbacks:** The `/api/ai` route features structured offline fallbacks so the application never hangs or crashes even if the OpenRouter key is unset or rate-limited.
 3. **Responsive Stress Testing:** Manual inspection across mobile (375px), tablet, and desktop viewports, validating that toolbars, headers, and modals never trigger horizontal layout clipping.
 4. **Clean Production Builds:** All TypeScript checks, linting, and Next.js static asset compilations were verified locally with `npm run build` exiting cleanly with code 0.
+

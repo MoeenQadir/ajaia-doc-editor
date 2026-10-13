@@ -41,6 +41,11 @@ export function Toolbar({ editor, disabled, documentTitle }: ToolbarProps) {
   const [aiActionActive, setAiActionActive] = useState<string | null>(null);
   const aiDropdownRef = useRef<HTMLDivElement>(null);
 
+  const [aiResult, setAiResult] = useState<string>("");
+  const [aiResultAction, setAiResultAction] = useState<string>("");
+  const [isAiResultOpen, setIsAiResultOpen] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+
   // Close AI dropdown on outside click
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -61,11 +66,6 @@ export function Toolbar({ editor, disabled, documentTitle }: ToolbarProps) {
     "p-2 rounded-lg text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0";
   const activeStyle =
     "bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 font-semibold";
-
-  const [aiResult, setAiResult] = useState<string>("");
-  const [aiResultAction, setAiResultAction] = useState<string>("");
-  const [isAiResultOpen, setIsAiResultOpen] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
 
   const handleAiAction = async (action: "summarize" | "polish" | "expand") => {
     if (!editor || disabled) return;

@@ -83,8 +83,12 @@ export function Navbar() {
               href="/"
               className="flex items-center gap-2 group transition-transform"
             >
-              <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-100 dark:border-indigo-900 flex items-center justify-center shadow-sm">
-                <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400 group-hover:rotate-12 transition-transform" />
+              <div className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center shadow-sm overflow-hidden p-1.5 group-hover:scale-105 transition-transform">
+                <img
+                  src="/logo.png"
+                  alt="Ajaia Logo"
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div className="flex items-center tracking-tight">
                 <span className="text-slate-900 dark:text-white font-bold text-lg">

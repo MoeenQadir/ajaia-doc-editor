@@ -11,6 +11,11 @@ export const metadata: Metadata = {
   title: "Ajaia Docs - AI-Native Collaborative Workspace",
   description:
     "High-quality collaborative document editor prototype inspired by Google Docs for Ajaia.",
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/icon.png",
+  },
 };
 
 import { ToastProvider } from "@/components/ui/Toast";

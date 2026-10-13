@@ -20,3 +20,4 @@ Please paste your 3-5 minute walkthrough Loom or unlisted YouTube video URL belo
 4. **AI Assistant Playground:** Generating summaries, polish, and outlines in a dedicated modal with 1-click **Copy Output**, **Clear**, and **Insert**.
 5. **Persistence & Auto-save:** Live debounced auto-saving to SQLite/Postgres.
 6. **Key Decisions & AI Workflow:** Explaining why simulated auth and debounced persistence were prioritized over complex WebSockets, and how AI coding was guided with strict human judgment.
+
