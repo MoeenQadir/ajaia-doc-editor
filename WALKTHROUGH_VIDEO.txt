@@ -1,0 +1,22 @@
+# Walkthrough Video Link
+
+**Candidate:** Muhammad Moeen Ul Qadir (bsf1804461@ue.edu.pk)  
+**Role:** AI-Native Full Stack Product Engineer  
+**Project:** Ajaia Docs  
+
+---
+
+## 📹 Video Walkthrough URL
+Please paste your 3-5 minute walkthrough Loom or unlisted YouTube video URL below:
+
+**Link:** `https://www.loom.com/share/your-walkthrough-id-here` *(or unlisted YouTube link)*
+
+---
+
+### Key Discussion Points Covered in Video:
+1. **End-to-End User Flow:** Creating, renaming, and rich-text editing a document on the Google Docs-style paper canvas.
+2. **File Ingestion:** Uploading `.docx`, `.md`, and `.txt` files directly into active editable documents.
+3. **Sharing & Access Matrix:** Demonstrating Alice (Owner) sharing with Bob (Collaborator) as **Editor** or **Viewer**, and seeing real-time read-only locks.
+4. **AI Assistant Playground:** Generating summaries, polish, and outlines in a dedicated modal with 1-click **Copy Output**, **Clear**, and **Insert**.
+5. **Persistence & Auto-save:** Live debounced auto-saving to SQLite/Postgres.
+6. **Key Decisions & AI Workflow:** Explaining why simulated auth and debounced persistence were prioritized over complex WebSockets, and how AI coding was guided with strict human judgment.

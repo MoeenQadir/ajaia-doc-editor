@@ -1,8 +1,26 @@
 # Ajaia Technical Assessment: Submission Report
 
-**Candidate / Role:** Principal AI-Native Full Stack Product Engineer  
+**Candidate:** Muhammad Moeen Ul Qadir  
+**Email:** bsf1804461@ue.edu.pk  
+**Role:** AI-Native Full Stack Product Engineer  
 **Project:** Ajaia Docs — Collaborative AI-Native Document Workspace  
+**Live URL:** https://ajaia-doc.vercel.app  
+**Repository:** https://github.com/MoeenQadir/ajaia-doc-editor  
+**Branch:** `v2` (and `master`)  
 **Stack:** Next.js 14 (App Router), TypeScript, Tailwind CSS, TipTap, Prisma ORM, SQLite, OpenRouter, Vitest  
+
+---
+
+## 📦 Deliverables Checklist (Per Prompt Instructions)
+
+- [x] **Source Code:** Full repository with Next.js 14, TypeScript, Tailwind, TipTap, Prisma, and Vitest.
+- [x] **README.md:** Complete setup and zero-config run instructions (`npm install && npm run dev`).
+- [x] **Architecture Note:** [ARCHITECTURE.md](file:///E:/ajaia-doc-editor/ARCHITECTURE.md) detailing architecture, scope prioritization, tradeoffs, and system boundaries.
+- [x] **AI Workflow Note:** [AI_WORKFLOW.md](file:///E:/ajaia-doc-editor/AI_WORKFLOW.md) explaining AI tooling, speedups, rejected proposals, and verification protocols.
+- [x] **Submission File:** `SUBMISSION.md` listing everything built, verified, and deliverable.
+- [x] **Live Product URL:** https://ajaia-doc.vercel.app
+- [x] **Walkthrough Video Note:** [WALKTHROUGH_VIDEO.txt](file:///E:/ajaia-doc-editor/WALKTHROUGH_VIDEO.txt) with discussion points and placeholder link.
+- [x] **Automated Tests:** 8 passing Vitest tests covering authorization rules and file parsing/sanitization.
 
 ---
 
