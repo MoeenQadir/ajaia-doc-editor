@@ -111,8 +111,9 @@ export function Toolbar({ editor, disabled, documentTitle }: ToolbarProps) {
   };
 
   return (
-    <div className="sticky top-[116px] z-20 flex items-center justify-between gap-1 p-2 bg-white/95 dark:bg-zinc-900/95 backdrop-blur border-b border-slate-200 dark:border-zinc-800 transition-colors overflow-x-auto">
-      <div className="flex items-center gap-1 shrink-0">
+    <div className="sticky top-[108px] sm:top-[116px] z-20 flex items-center justify-between gap-2 px-3 sm:px-6 py-2 bg-white/95 dark:bg-zinc-900/95 backdrop-blur border-b border-slate-200 dark:border-zinc-800 transition-colors">
+      {/* Scrollable formatting actions */}
+      <div className="flex items-center gap-1 overflow-x-auto scrollbar-none py-0.5 min-w-0 flex-1 mr-2">
         {/* Paragraph / Normal text */}
         <button
           type="button"
@@ -255,7 +256,7 @@ export function Toolbar({ editor, disabled, documentTitle }: ToolbarProps) {
       </div>
 
       {/* Right side: AI Assistant Dropdown */}
-      <div className="relative" ref={aiDropdownRef}>
+      <div className="relative shrink-0 z-30" ref={aiDropdownRef}>
         <button
           type="button"
           disabled={disabled || isAiLoading}
@@ -282,7 +283,7 @@ export function Toolbar({ editor, disabled, documentTitle }: ToolbarProps) {
 
         {/* AI Dropdown Menu */}
         {isAiDropdownOpen && (
-          <div className="absolute right-0 mt-2 w-56 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-xl py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+          <div className="absolute right-0 mt-2 w-60 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
             <div className="px-3 py-1 border-b border-slate-100 dark:border-zinc-800 mb-1">
               <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">
                 OpenRouter AI Actions
