@@ -65,10 +65,10 @@ export async function GET(req: Request) {
     ]);
 
     return NextResponse.json({ owned, shared });
-  } catch (error) {
+  } catch (error: any) {
     console.error("GET /api/documents error:", error);
     return NextResponse.json(
-      { error: "Failed to fetch documents" },
+      { error: "Failed to fetch documents", details: error?.message || String(error) },
       { status: 500 }
     );
   }
@@ -120,10 +120,10 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(document, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("POST /api/documents error:", error);
     return NextResponse.json(
-      { error: "Failed to create document" },
+      { error: "Failed to create document", details: error?.message || String(error) },
       { status: 500 }
     );
   }
