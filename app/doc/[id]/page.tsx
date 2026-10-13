@@ -272,7 +272,7 @@ export default function DocumentEditorPage() {
         </div>
 
         {/* Right: Live Auto-save status, permission badge, Share & Action buttons */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none w-full sm:w-auto justify-between sm:justify-end shrink-0 text-xs">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 overflow-x-auto sm:overflow-visible pb-1 sm:pb-0 scrollbar-none w-full sm:w-auto justify-between sm:justify-end shrink-0 text-xs">
           {/* Live Auto-save status indicator (desktop) */}
           <div className="hidden sm:flex items-center gap-1.5 font-medium">
             {saveStatus === "saving" && (

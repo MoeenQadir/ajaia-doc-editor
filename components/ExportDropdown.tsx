@@ -41,10 +41,13 @@ export function ExportDropdown({ title, getContentHtml }: ExportDropdownProps) {
   };
 
   return (
-    <div className={`relative ${isOpen ? "z-50" : "z-10"}`} ref={dropdownRef}>
+    <div className={`relative ${isOpen ? "z-50" : "z-20"}`} ref={dropdownRef}>
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsOpen((prev) => !prev);
+        }}
         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-200 text-xs font-medium shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
         title="Export Document"
         aria-label="Export Document"
@@ -55,7 +58,7 @@ export function ExportDropdown({ title, getContentHtml }: ExportDropdownProps) {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-52 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+        <div className="absolute right-0 top-full mt-1.5 w-52 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
           <div className="px-3 py-1 border-b border-slate-100 dark:border-zinc-800 mb-1">
             <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">
               Document Formats
